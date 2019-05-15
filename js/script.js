@@ -12,7 +12,7 @@ $().ready(() => {
 
 			createBlankData(imageData);
 
-			for(let i = 0; i < pixelArray.length; i++){
+			for (let i = 0; i < pixelArray.length; i++) {
 				let pixel = Math.floor((i / pixelArray.length) * canvasCount);
 				let arr = dataArray[weightedRandomDistrib(pixel)];
 				arr[i] = pixelArray[i];
@@ -22,7 +22,7 @@ $().ready(() => {
 
 			}
 
-			for(let i = 0; i < canvasCount; i++){
+			for (let i = 0; i < canvasCount; i++) {
 				let c = newCanvasFromImageData(dataArray[i], canvas.width, canvas.height);
 				c.classList.add("dust");
 				$("body").append(c);
@@ -30,13 +30,21 @@ $().ready(() => {
 			// limpa todos os filhos, exceto o canvas
 			$(".content").children().not(".dust").fadeOut(3500);
 
-			// TODO aplicar animacoes
+			$(".dust").each(index => {
+				animateBlur($(this), 0.8, 800);
+				setTimeout(() => {
+					animateTransform($(this), 100, -100, chance.integer({ min: -15, max: 15 }), 800 + (110 * index));
+				}, (70 * index));
+
+				$(this).delay(70 * index).fadeOut((110 * index) + 800, "easeInQuint", () => {
+					$(this).remove();
+				});
+			});
 		});
 	});
 
-
 	const createBlankData = imgData => {
-		for(let i = 0; i < canvasCount; i++){
+		for (let i = 0; i < canvasCount; i++) {
 			let arr = new Uint8ClampedArray(imgData.data);
 			for (let j = 0; j < arr.length; j++) {
 				arr[j] = 0;
@@ -71,23 +79,50 @@ $().ready(() => {
 
 	// funcao de distribuicao ponderada
 	const weightedRandomDistrib = peak => {
-		let prob = [], seq = [];
-		for(let i = 0; i < canvasCount; i++) {
-		  prob.push(Math.pow(canvasCount - Math.abs(peak - i), 3));
-		  seq.push(i);
+		let prob = [],
+			seq = [];
+		for (let i = 0; i < canvasCount; i++) {
+			prob.push(Math.pow(canvasCount - Math.abs(peak - i), 3));
+			seq.push(i);
 		}
 		return chance.weighted(seq, prob);
-	  }
+	}
 
 
-	  // TODO implementar funcoes de animacao (que o jQuery deveria ter nativamente)
+	// TODO implementar funcoes de animacao (que o jQuery deveria ter nativamente)
 
-	  const animateBlur = (el, radius, time) => {
+	const animateBlur = (el, radius, time) => {
+		let r = 0;
+		$({ rad: 0 }).animate({ rad: radius }, {
+			duration: time,
+			easing: "easeOutQuad",
+			step: now => {
+				el.css({ filter: `blur(${now}px)` });
+			}
+		});
+	}
 
-	  }
+	const animateTransform = (el, sx, sy, ang, time) => {
+		let td, tx, ty = 0;
 
-	  const animateTransform = (el, sx, sy, ang, time) => {
+		$({	x: 0, y: 0,	deg: 0 }).animate({ x: sx, y: sy, deg: ang }, {
+			duration: time,
+			easing: "easeInQuad",
+			step: (now, fx) => {
+				switch (fx.prop) {
+					case 'x':
+						tx = now;
+						break;
+					case 'y':
+						ty = now;
+						break;
+					case 'deg':
+						td = now;
+						break;
+				}
 
-	  }
-
+				el.css({ transform: `rotate(${td}deg); translate(${tx}px, ${ty}px)` });
+			}
+		});
+	}
 });
