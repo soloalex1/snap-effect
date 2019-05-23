@@ -43,6 +43,7 @@ $().ready(() => {
 		});
 	});
 
+	// cria a imagem como um array de pixels vazios usando um scanline básico
 	const createBlankData = imgData => {
 		for (let i = 0; i < canvasCount; i++) {
 			let arr = new Uint8ClampedArray(imgData.data);
@@ -53,7 +54,7 @@ $().ready(() => {
 		}
 	}
 
-	// funçao que cria um novo canvas a partir dos dados de uma imagem passada
+	// função que cria um novo canvas a partir dos dados de uma imagem passada
 	const newCanvasFromImageData = (imgDataArray, width, height) => {
 		let canvas = document.createElement('canvas');
 
@@ -70,14 +71,14 @@ $().ready(() => {
 	}
 
 	/* 
-		pra dar o efeito de um fadeout top-bottom, nao da pra simplesmente usar um
-		random, entao preciso utilizar uma distribuicao ponderada pra sumir
+		pra dar o efeito de um fadeout top-bottom, não dá pra simplesmente usar um
+		random, entao preciso utilizar uma distribuição ponderada pra sumir
 		gradualmente com os pixels da imagem, aumentando a probabilidade da maioria dos
 		pixels do topo da imagem de estar no primeiro grupo de canvas criados.
 	*/
 
 
-	// funcao de distribuicao ponderada
+	// funcao de distribuição ponderada
 	const weightedRandomDistrib = peak => {
 		let prob = [],
 			seq = [];
@@ -88,9 +89,7 @@ $().ready(() => {
 		return chance.weighted(seq, prob);
 	}
 
-
-	// TODO implementar funcoes de animacao (que o jQuery deveria ter nativamente)
-
+	// função que faz a animação de ease-out com blur das fumacinhas
 	const animateBlur = (el, radius, time) => {
 		let r = 0;
 		$({ rad: 0 }).animate({ rad: radius }, {
@@ -102,6 +101,7 @@ $().ready(() => {
 		});
 	}
 
+	// função que aplica um transform nos canvas e rotaciona/move eles pra dar o efeito da poeira voando
 	const animateTransform = (el, sx, sy, ang, time) => {
 		let td, tx, ty = 0;
 
